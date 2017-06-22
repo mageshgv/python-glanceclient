@@ -155,6 +155,8 @@ class HTTPClient(object):
         headers = kwargs.pop("headers", {})
         headers = headers and copy.deepcopy(headers) or {}
 
+        timeout = kwargs.pop("timeout", self.timeout)
+
         # Default Content-Type is octet-stream
         content_type = headers.get('Content-Type', 'application/octet-stream')
 
@@ -197,10 +199,11 @@ class HTTPClient(object):
                                         data=data,
                                         stream=stream,
                                         headers=headers,
+                                        timeout=timeout,
                                         **kwargs)
         except requests.exceptions.Timeout as e:
             message = ("Error communicating with %(endpoint)s %(e)s" %
-                       dict(url=conn_url, e=e))
+                       dict(endpoint=conn_url, e=e))
             raise exc.InvalidEndpoint(message=message)
         except (requests.exceptions.ConnectionError, ProtocolError) as e:
             message = ("Error finding address for %(url)s: %(e)s" %
